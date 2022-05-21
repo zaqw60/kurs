@@ -97,7 +97,7 @@ CREATE TABLE messages (
 );
 
 -- Таблица гостей
-CREATE TABLE groups (
+CREATE TABLE guest_logs (
   id SERIAL PRIMARY KEY,
   requested_by_user_id INT NOT NULL,
   requested_to_user_id INT NOT NULL,
