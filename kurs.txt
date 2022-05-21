@@ -15,10 +15,22 @@ CREATE TABLE profiles (
   location VARCHAR(50),
   marital_status VARCHAR(50),
   career VARCHAR(120),
-  other_profiles VARCHAR(50),
   studies VARCHAR(50),
   army VARCHAR(120),
   created_at TIMESTAMP
+);
+
+
+-- Таблица профилей пользователя в других сетях
+CREATE TABLE other_profiles (
+  user_id INT,
+  twitter_name VARCHAR(50),
+  tiktok_name VARCHAR(50),
+  vk_name VARCHAR(50),
+  telegram_name VARCHAR(50),
+  viber_name VARCHAR(50),
+  whatsapp_name VARCHAR(50),
+  other_name VARCHAR(50),
 );
 
 -- Таблица дружбы
@@ -57,17 +69,7 @@ CREATE TABLE video (
   size INT NOT NULL
 );
 
--- Таблица игр
-CREATE TABLE games (
-  id SERIAL PRIMARY KEY,
-  name VARCHAR(30) UNIQUE
-);
 
--- Таблица приложений
-CREATE TABLE apps (
-  id SERIAL PRIMARY KEY,
-  name VARCHAR(30) UNIQUE
-);
 
 -- Таблица групп
 CREATE TABLE groups (
