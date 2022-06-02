@@ -1,0 +1,36 @@
+  -- Запрет на удаление пользователя , проявлявшего активность в последний год
+  DROP VIEW active_users
+  
+  CREATE VIEW active_users AS
+     SELECT users.id AS ID,
+            CONCAT (users.first_name, ' ', users.last_name) AS user,
+            COUNT(messages.created_at) AS count_messages,
+            COUNT(discussion_messages.created_at) AS count_discussion_messages
+     FROM users 
+      LEFT JOIN messages
+        ON users.id = messages.from_user_id AND messages.is_delivered = 'true'  
+      LEFT JOIN discussion_messages
+        ON users.id = discussion_messages.from_user_id 
+   WHERE messages.created_at > NOW() - interval '1 years' OR discussion_messages.created_at > NOW() - interval '1 years'
+  GROUP BY users.id
+  ORDER BY count_messages DESC, count_discussion_messages DESC
+  
+  DROP FUNCTION delete_active_users_trigger CASCADE
+  
+CREATE OR REPLACE FUNCTION delete_active_users_trigger()
+RETURNS TRIGGER AS
+$$
+BEGIN
+    IF NEW.id IS NOT NULL AND NEW.id IN (SELECT id FROM active_users) THEN
+        RAISE EXCEPTION 'User with ID: % is activ', NEW.id;
+    END IF;
+    RETURN NEW;
+END;
+$$
+LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS check_users_on_delete ON users;
+
+CREATE TRIGGER check_users_on_delete BEFORE DELETE ON users
+    FOR EACH ROW
+EXECUTE FUNCTION delete_active_users_trigger();

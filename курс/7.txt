@@ -1,0 +1,49 @@
+--Пользователи писавшие сообщения  или участвующие в дискуссиях в последний год
+
+   CREATE VIEW active_users AS
+     SELECT users.id,
+            CONCAT (users.first_name, ' ', users.last_name) AS user,
+            COUNT(messages.created_at) AS count_messages,
+            COUNT(discussion_messages.created_at) AS count_discussion_messages
+     FROM users 
+      LEFT JOIN messages
+        ON users.id = messages.from_user_id AND messages.is_delivered = 'true'  
+      LEFT JOIN discussion_messages
+        ON users.id = discussion_messages.from_user_id 
+   WHERE messages.created_at > NOW() - interval '1 years' OR discussion_messages.created_at > NOW() - interval '1 years'
+  GROUP BY users.id
+  ORDER BY count_messages DESC, count_discussion_messages DESC
+
+
+ --Гости, посещавшие страницу пользователя, оставившие заявку на дружбу 
+  CREATE VIEW requesting_guests AS
+  SELECT users.id, guest_logs.requested_to_user_id, guest_logs.requested_by_user_id, friendship.requested_to_user_id, friendship.requested_by_user_id FROM users
+   LEFT JOIN guest_logs
+   ON users.id = guest_logs.requested_to_user_id
+   LEFT JOIN friendship
+   ON guest_logs.requested_by_user_id = friendship.requested_by_user_id
+   WHERE friendship.requested_to_user_id = guest_logs.requested_to_user_id
+
+
+-- id, имя, фамилия, место жительства, кол-во фотографий пользователей имеющих подтвержденных друзей
+
+CREATE VIEW count_photo_friends AS
+SELECT DISTINCT users.id,
+ CONCAT(first_name, ' ', last_name) AS user,
+ profiles.location,
+ COUNT (photo.id) AS count_photo
+FROM users
+ JOIN friendship
+   ON friendship.requested_by_user_id = users.id OR friendship.requested_to_user_id = users.id 
+ JOIN profiles
+   ON users.id = profiles.user_id
+ JOIN friendship_statuses
+   ON friendship_statuses.id = friendship.status_id
+ JOIN photo 
+ ON users.id = photo.owner_id
+ WHERE friendship_statuses.name = 'друзья'
+ GROUP BY users.id, profiles.location
+ ORDER BY count_photo DESC
+
+
+

@@ -1,0 +1,14 @@
+--  Функция, которая возвращает кол-во гостей пользователя по его id.
+ 
+DROP FUNCTION IF EXISTS user_friends;
+CREATE FUNCTION user_friends(user_id INTEGER) 
+RETURNS bigint AS 
+$$
+  SELECT
+  COUNT(users.id) AS count_user
+    FROM users
+    JOIN guest_logs
+    ON  users.id = requested_by_user_id
+    WHERE requested_to_user_id = user_id
+$$ 
+LANGUAGE SQL;

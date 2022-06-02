@@ -1,0 +1,126 @@
+-- внешний ключ для столбца user_id таблицы profiles
+ALTER TABLE profiles 
+  ADD CONSTRAINT profiles_user_id_fk 
+  FOREIGN KEY (user_id) 
+  REFERENCES users (id)
+    ON DELETE CASCADE;
+
+-- внешний ключ для столбца main_photo_id таблицы profiles
+ALTER TABLE profiles 
+  ADD CONSTRAINT profiles_main_photo_id_fk 
+  FOREIGN KEY (main_photo_id) 
+  REFERENCES users (id)
+    ON DELETE CASCADE;
+
+-- внешний ключ для столбца user_id таблицы other_profiles
+ALTER TABLE other_profiles 
+  ADD CONSTRAINT other_profiles_user_id_fk 
+  FOREIGN KEY (user_id) 
+  REFERENCES users (id)
+    ON DELETE CASCADE;
+
+-- внешний ключ для столбца requested_by_user_id таблицы friendship
+ALTER TABLE friendship 
+  ADD CONSTRAINT friendship_requested_by_user_id_fk 
+  FOREIGN KEY (requested_by_user_id) 
+  REFERENCES users (id)
+    ON DELETE CASCADE;
+
+-- внешний ключ для столбца requested_to_user_id таблицы friendship
+ALTER TABLE friendship 
+  ADD CONSTRAINT friendship_requested_to_user_id_fk 
+  FOREIGN KEY (requested_to_user_id) 
+  REFERENCES users (id)
+    ON DELETE CASCADE;
+
+-- внешний ключ для столбца status_id таблицы friendship
+ALTER TABLE friendship 
+  ADD CONSTRAINT friendship_status_id_fk 
+  FOREIGN KEY (status_id) 
+  REFERENCES friendship_statuses (id)
+    ON DELETE CASCADE;
+
+-- внешний ключ для столбца owner_id таблицы photo
+ALTER TABLE photo 
+  ADD CONSTRAINT photo_owner_id_fk 
+  FOREIGN KEY (owner_id) 
+  REFERENCES users (id)
+    ON DELETE CASCADE;
+
+-- внешний ключ для столбца owner_id таблицы video
+ALTER TABLE video 
+  ADD CONSTRAINT video_owner_id_fk 
+  FOREIGN KEY (owner_id) 
+  REFERENCES users (id)
+    ON DELETE CASCADE;
+
+-- внешний ключ для столбца creator_id таблицы groups
+ALTER TABLE groups 
+  ADD CONSTRAINT groups_creator_id_fk 
+  FOREIGN KEY (creator_id) 
+  REFERENCES users (id)
+    ON DELETE CASCADE;
+
+-- внешний ключ для столбца user_id таблицы groups_users
+ALTER TABLE groups_users 
+  ADD CONSTRAINT groups_users_user_id_fk 
+  FOREIGN KEY (user_id) 
+  REFERENCES users (id)
+    ON DELETE CASCADE;
+
+-- внешний ключ для столбца group_id таблицы groups_users
+ALTER TABLE groups_users 
+  ADD CONSTRAINT groups_users_group_id_fk 
+  FOREIGN KEY (group_id) 
+  REFERENCES groups (id)
+    ON DELETE CASCADE;
+
+-- внешний ключ для столбца from_user_id таблицы messages
+ALTER TABLE messages 
+  ADD CONSTRAINT messages_from_user_id_fk 
+  FOREIGN KEY (from_user_id) 
+  REFERENCES users (id)
+    ON DELETE CASCADE;
+
+-- внешний ключ для столбца to_user_id таблицы messages
+ALTER TABLE messages 
+  ADD CONSTRAINT messages_to_user_id_fk 
+  FOREIGN KEY (to_user_id) 
+  REFERENCES users (id)
+    ON DELETE CASCADE;
+
+-- внешний ключ для столбца requested_by_user_id таблицы guest_logs
+ALTER TABLE guest_logs 
+  ADD CONSTRAINT guest_logs_requested_by_user_id_fk 
+  FOREIGN KEY (requested_by_user_id) 
+  REFERENCES users (id)
+    ON DELETE CASCADE;
+
+-- внешний ключ для столбца requested_to_user_id таблицы guest_logs
+ALTER TABLE guest_logs 
+  ADD CONSTRAINT guest_logs_requested_to_user_id_fk 
+  FOREIGN KEY (requested_to_user_id) 
+  REFERENCES users (id)
+    ON DELETE CASCADE;
+
+-- внешний ключ для столбца owner_id таблицы discussions
+ALTER TABLE discussions 
+  ADD CONSTRAINT discussions_owner_id_fk 
+  FOREIGN KEY (owner_id) 
+  REFERENCES users (id)
+    ON DELETE CASCADE;
+
+-- внешний ключ для столбца from_user_id таблицы discussion_messages
+ALTER TABLE discussion_messages 
+  ADD CONSTRAINT discussion_messages_from_user_id_fk 
+  FOREIGN KEY (from_user_id) 
+  REFERENCES users (id)
+    ON DELETE CASCADE;
+
+-- внешний ключ для столбца discussions_id таблицы discussion_messages
+ALTER TABLE discussion_messages 
+  ADD CONSTRAINT discussion_messages_discussions_id_fk 
+  FOREIGN KEY (discussions_id) 
+  REFERENCES discussions (id)
+    ON DELETE CASCADE;
+
