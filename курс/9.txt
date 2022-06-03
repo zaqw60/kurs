@@ -20,8 +20,10 @@
 CREATE OR REPLACE FUNCTION delete_active_users_trigger()
 RETURNS TRIGGER AS
 $$
+DECLARE is_found BOOLEAN;
 BEGIN
-    IF NEW.id IS NOT NULL AND NEW.id IN (SELECT id FROM active_users) THEN
+ is_found := EXISTS(SELECT id FROM active_users WHERE id = NEW.id);
+    IF is_found THEN
         RAISE EXCEPTION 'User with ID: % is activ', NEW.id;
     END IF;
     RETURN NEW;
