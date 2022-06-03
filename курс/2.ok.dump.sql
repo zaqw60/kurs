@@ -17,17 +17,32 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
+-- Name: pg_stat_statements; Type: EXTENSION; Schema: -; Owner: -
+--
+
+CREATE EXTENSION IF NOT EXISTS pg_stat_statements WITH SCHEMA public;
+
+
+--
+-- Name: EXTENSION pg_stat_statements; Type: COMMENT; Schema: -; Owner: 
+--
+
+COMMENT ON EXTENSION pg_stat_statements IS 'track execution statistics of all SQL statements executed';
+
+
+--
 -- Name: delete_active_users_trigger(); Type: FUNCTION; Schema: public; Owner: gb_user
 --
 
 CREATE FUNCTION public.delete_active_users_trigger() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
-DECLARE user_id INTEGER;
+DECLARE is_found BOOLEAN;
 BEGIN
-   user_id := NEW.id;
+ is_found := EXISTS(SELECT id FROM active_users WHERE id = NEW.id);
+    IF is_found THEN
         RAISE EXCEPTION 'User with ID: % is activ', NEW.id;
-    
+    END IF;
     RETURN NEW;
 END;
 $$;
@@ -2045,6 +2060,27 @@ ALTER TABLE ONLY public.video
 
 
 --
+-- Name: groups_creator_id_idx; Type: INDEX; Schema: public; Owner: gb_user
+--
+
+CREATE INDEX groups_creator_id_idx ON public.groups USING btree (creator_id);
+
+
+--
+-- Name: groups_users_group_id_idx; Type: INDEX; Schema: public; Owner: gb_user
+--
+
+CREATE INDEX groups_users_group_id_idx ON public.groups_users USING btree (group_id);
+
+
+--
+-- Name: groups_users_user_id_idx; Type: INDEX; Schema: public; Owner: gb_user
+--
+
+CREATE INDEX groups_users_user_id_idx ON public.groups_users USING btree (user_id);
+
+
+--
 -- Name: active_users _RETURN; Type: RULE; Schema: public; Owner: gb_user
 --
 
@@ -2193,7 +2229,7 @@ ALTER TABLE ONLY public.photo
 --
 
 ALTER TABLE ONLY public.profiles
-    ADD CONSTRAINT profiles_main_photo_id_fk FOREIGN KEY (main_photo_id) REFERENCES public.users(id) ON DELETE CASCADE;
+    ADD CONSTRAINT profiles_main_photo_id_fk FOREIGN KEY (main_photo_id) REFERENCES public.photo(id);
 
 
 --
