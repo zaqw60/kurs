@@ -1,7 +1,7 @@
 --  Функция, которая возвращает кол-во гостей пользователя по его id.
  
-DROP FUNCTION IF EXISTS user_friends;
-CREATE FUNCTION user_friends(user_id INTEGER) 
+DROP FUNCTION IF EXISTS user_friends_count;
+CREATE FUNCTION user_friends_count(user_id INTEGER) 
 RETURNS bigint AS 
 $$
   SELECT
