@@ -9,7 +9,7 @@ ALTER TABLE profiles
 ALTER TABLE profiles 
   ADD CONSTRAINT profiles_main_photo_id_fk 
   FOREIGN KEY (main_photo_id) 
-  REFERENCES users (id)
+  REFERENCES photo (id)
     ON DELETE CASCADE;
 
 -- внешний ключ для столбца user_id таблицы other_profiles
