@@ -1,0 +1,31 @@
+-- id, имя, фамилия, главное фото, кол-во присланных сообщений  пользователя которому чаще всего пишут сообщения
+
+SELECT users.id,
+    CONCAT(first_name, ' ', last_name) AS user,
+    profiles.main_photo_id AS photo_id,
+    COUNT(messages.to_user_id)
+ FROM users
+   JOIN profiles
+     ON users.id = profiles.user_id 
+   JOIN messages
+     ON messages.to_user_id = users.id
+     JOIN photo
+     ON photo.owner_id = users.id
+ GROUP BY users.id, profiles.main_photo_id
+ ORDER BY COUNT(messages.to_user_id)DESC LIMIT 1 ;
+
+
+
+
+ --Для каждой группы id, name, кол-во пользователей , которые в ней состоят, id, имя, фамилию создателя группы 
+SELECT groups.id,
+       groups.name,
+       COUNT(groups_users.user_id) AS count_users,
+       CONCAT (users.first_name, ' ', users.last_name) AS creator_user
+FROM groups
+LEFT JOIN groups_users
+ON groups_users.group_id = groups.id
+JOIN users
+ON groups.creator_id = users.id
+   GROUP BY groups.id, users.first_name,  users.last_name
+   ORDER BY count_users DESC;

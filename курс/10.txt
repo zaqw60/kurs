@@ -1,0 +1,71 @@
+ok=> EXPLAIN ANALYZE SELECT groups.id,
+ok->        groups.name,
+ok->        COUNT(groups_users.user_id) AS count_users,
+ok->        CONCAT (users.first_name, ' ', users.last_name) AS creator_user
+ok-> FROM groups
+ok-> LEFT JOIN groups_users
+ok-> ON groups_users.group_id = groups.id
+ok-> JOIN users
+ok-> ON groups.creator_id = users.id
+ok->    GROUP BY groups.id, users.first_name,  users.last_name
+ok->    ORDER BY count_users DESC;
+                                                            QUERY PLAN
+-----------------------------------------------------------------------------------------------------------------------------------
+ Sort  (cost=15.62..15.87 rows=100 width=75) (actual time=3.683..3.944 rows=100 loops=1)
+   Sort Key: (count(groups_users.user_id)) DESC
+   Sort Method: quicksort  Memory: 39kB
+   ->  HashAggregate  (cost=11.05..12.30 rows=100 width=75) (actual time=3.245..3.528 rows=100 loops=1)
+         Group Key: groups.id, users.first_name, users.last_name
+         ->  Hash Join  (cost=7.50..10.05 rows=100 width=39) (actual time=1.102..2.833 rows=134 loops=1)
+               Hash Cond: (groups.creator_id = users.id)
+               ->  Hash Right Join  (cost=3.25..5.52 rows=100 width=31) (actual time=0.578..1.586 rows=134 loops=1)
+                     Hash Cond: (groups_users.group_id = groups.id)
+                     ->  Seq Scan on groups_users  (cost=0.00..2.00 rows=100 width=8) (actual time=0.013..0.313 rows=100 loops=1)
+                     ->  Hash  (cost=2.00..2.00 rows=100 width=27) (actual time=0.542..0.561 rows=100 loops=1)
+                           Buckets: 1024  Batches: 1  Memory Usage: 14kB
+                           ->  Seq Scan on groups  (cost=0.00..2.00 rows=100 width=27) (actual time=0.009..0.296 rows=100 loops=1)
+               ->  Hash  (cost=3.00..3.00 rows=100 width=16) (actual time=0.505..0.511 rows=100 loops=1)
+                     Buckets: 1024  Batches: 1  Memory Usage: 13kB
+                     ->  Seq Scan on users  (cost=0.00..3.00 rows=100 width=16) (actual time=0.010..0.266 rows=100 loops=1)
+ Planning Time: 0.818 ms
+ Execution Time: 4.463 ms
+(18 rows)
+
+
+
+В таблице  groups_users  можнопроиндексировать столбец user_id для ускорения работы агрегатной функции COUNT(groups_users.user_id) AS count_users
+
+ok=> CREATE INDEX groups_users_user_id_idx ON groups_users (user_id);
+CREATE INDEX
+
+
+В связках  ON groups_users.group_id = groups.id   и   ON groups.creator_id = users.id   столбцы   groups.id  и  users.id  проиндексированы автоматически при создании таблиц,   а столбцы groups_users.group_id  и  groups.creator_id 
+не проиндексированы , но являются связующими для двух соответствующих таблиц.  Индексация оных столбцов должна ускорить процесс поиска и объединения данных из таблиц.
+
+ok=> CREATE INDEX groups_users_group_id_idx ON groups_users (group_id);
+CREATE INDEX
+ok=> CREATE INDEX groups_creator_id_idx ON groups (creator_id);
+CREATE INDEX
+
+
+                                                                            QUERY PLAN
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Sort  (cost=50.52..50.77 rows=100 width=75) (actual time=3.058..3.272 rows=100 loops=1)
+   Sort Key: (count(groups_users.user_id)) DESC
+   Sort Method: quicksort  Memory: 39kB
+   ->  HashAggregate  (cost=45.95..47.20 rows=100 width=75) (actual time=2.510..2.843 rows=100 loops=1)
+         Group Key: groups.id, users.first_name, users.last_name
+         ->  Hash Join  (cost=16.18..44.95 rows=100 width=39) (actual time=0.503..2.217 rows=134 loops=1)
+               Hash Cond: (groups.creator_id = users.id)
+               ->  Merge Left Join  (cost=0.29..28.79 rows=100 width=31) (actual time=0.018..1.133 rows=134 loops=1)
+                     Merge Cond: (groups.id = groups_users.group_id)
+                     ->  Index Scan using groups_pkey on groups  (cost=0.14..13.64 rows=100 width=27) (actual time=0.005..0.217 rows=100 loops=1)
+                     ->  Index Scan using groups_users_group_id_idx on groups_users  (cost=0.14..13.64 rows=100 width=8) (actual time=0.004..0.208 rows=100 loops=1)
+               ->  Hash  (cost=14.64..14.64 rows=100 width=16) (actual time=0.474..0.480 rows=100 loops=1)
+                     Buckets: 1024  Batches: 1  Memory Usage: 13kB
+                     ->  Index Scan using users_pkey on users  (cost=0.14..14.64 rows=100 width=16) (actual time=0.004..0.255 rows=100 loops=1)
+ Planning Time: 0.263 ms
+ Execution Time: 3.537 ms
+(16 rows)
+
+

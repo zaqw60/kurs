@@ -1,0 +1,19 @@
+ --Вложенные запросы
+
+-- id, имя, фамилия, размер самого большого видео пользователя с наибольшим кол-вом загруженных видео 
+SELECT id,
+ CONCAT(first_name, ' ', last_name) AS user,
+ (SELECT MAX(size) FROM video WHERE owner_id = id) AS size
+FROM users
+  WHERE id = (SELECT owner_id FROM video ORDER BY size DESC LIMIT 1)
+
+
+-- id, имя, фамилия, дата рождения, никнейм в сети tiktok  последнего написавшего сообщение пользователя
+ SELECT id,
+ CONCAT(first_name, ' ', last_name) AS user,
+ (SELECT date_of_birth FROM profiles WHERE user_id = id),
+ (SELECT tiktok_name FROM other_profiles WHERE user_id = id)
+ FROM users
+ WHERE id = (SELECT from_user_id FROM messages WHERE is_delivered = 'true' ORDER BY created_at DESC LIMIT 1)
+
+
