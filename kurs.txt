@@ -1,0 +1,124 @@
+-- Таблица пользователей
+CREATE TABLE users (
+  id SERIAL PRIMARY KEY,
+  first_name VARCHAR(50) NOT NULL,
+  last_name VARCHAR(50) NOT NULL,
+  email VARCHAR(120) NOT NULL UNIQUE,
+  phone VARCHAR(15) UNIQUE,
+);
+
+-- Таблица профилей
+CREATE TABLE profiles (
+  user_id INT,
+  main_photo_id INT,
+  date_of_birth TIMESTAMP,
+  location VARCHAR(50),
+  marital_status VARCHAR(50),
+  career VARCHAR(120),
+  studies VARCHAR(50),
+  army VARCHAR(120),
+  created_at TIMESTAMP
+);
+
+
+-- Таблица профилей пользователя в других сетях
+CREATE TABLE other_profiles (
+  user_id INT,
+  twitter_name VARCHAR(50),
+  tiktok_name VARCHAR(50),
+  vk_name VARCHAR(50),
+  telegram_name VARCHAR(50),
+  viber_name VARCHAR(50),
+  whatsapp_name VARCHAR(50),
+  other_name VARCHAR(50),
+);
+
+-- Таблица дружбы
+CREATE TABLE friendship (
+  id SERIAL PRIMARY KEY,
+  requested_by_user_id INT NOT NULL,
+  requested_to_user_id INT NOT NULL,
+  status_id INT NOT NULL,
+  requested_at TIMESTAMP,
+  confirmed_at TIMESTAMP
+);
+
+-- Таблица статусов дружбы
+CREATE TABLE friendship_statuses (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(30) UNIQUE
+);
+
+-- Таблица фотографий
+CREATE TABLE photo (
+  id SERIAL PRIMARY KEY,
+  url VARCHAR(250) NOT NULL UNIQUE,
+  owner_id INT NOT NULL,
+  description VARCHAR(250) NOT NULL,
+  uploaded_at TIMESTAMP NOT NULL,
+  size INT NOT NULL
+);
+
+-- Таблица видео
+CREATE TABLE video (
+  id SERIAL PRIMARY KEY,
+  url VARCHAR(250) NOT NULL UNIQUE,
+  owner_id INT NOT NULL,
+  description VARCHAR(250) NOT NULL,
+  uploaded_at TIMESTAMP NOT NULL,
+  size INT NOT NULL
+);
+
+
+
+-- Таблица групп
+CREATE TABLE groups (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(120) UNIQUE,
+  creator_id INT NOT NULL,
+  created_at TIMESTAMP
+);
+
+-- Таблица связи группы - пользователи
+CREATE TABLE groups_users (
+  group_id INT NOT NULL,
+  user_id INT NOT NULL,
+  created_at TIMESTAMP,
+  PRIMARY KEY (group_id, user_id)
+);
+
+-- Таблица сообщений
+CREATE TABLE messages (
+  id SERIAL PRIMARY KEY,
+  from_user_id INT NOT NULL,
+  to_user_id INT NOT NULL,
+  body TEXT,
+  is_important BOOLEAN,
+  is_delivered BOOLEAN,
+  created_at TIMESTAMP
+);
+
+-- Таблица гостей
+CREATE TABLE guest_logs (
+  id SERIAL PRIMARY KEY,
+  requested_by_user_id INT NOT NULL,
+  requested_to_user_id INT NOT NULL,
+  created_at TIMESTAMP
+);
+
+-- Таблица дискуссий
+CREATE TABLE discussions (
+  id SERIAL PRIMARY KEY,
+  owner_id INT NOT NULL,
+  name TEXT,
+  created_at TIMESTAMP
+);
+
+-- Таблица сообщений дискуссий
+CREATE TABLE discussion_messages (
+  id SERIAL PRIMARY KEY,
+  from_user_id INT NOT NULL,
+  discussions_id INT NOT NULL,
+  body TEXT,
+  created_at TIMESTAMP
+);
